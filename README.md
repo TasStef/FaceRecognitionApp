@@ -2,6 +2,20 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Test Picture Links
+
+- People Picture:
+  1. [People 1](https://assets.weforum.org/article/image/XaHpf_z51huQS_JPHs-jkPhBp0dLlxFJwt-sPLpGJB0.jpg)
+  2. [People 2](https://www.quickanddirtytips.com/wp-content/uploads/2022/05/ezgif.com-gif-maker-3.jpg)
+  3. [Person 3](https://static.independent.co.uk/s3fs-public/thumbnails/image/2015/06/06/15/Chris-Pratt.jpg)
+- No Face Picture:
+  1. [Landscape 1](https://cdn.pixabay.com/photo/2012/08/27/14/19/mountains-55067_640.png)
+  2. [Landscape 2](https://static.vecteezy.com/system/resources/previews/003/623/626/non_2x/sunset-lake-landscape-illustration-free-vector.jpg)
+
+## Clarifai Response Cordinates
+
+resp.outputs[0].data.regions[0].region_info.bounding_box
+
 ## Available Scripts
 
 In the project directory, you can run:

@@ -5,8 +5,6 @@ import "tachyons";
 import brain from "./brain.png";
 
 const Logo = () => {
-  console.log(brain);
-
   return (
     <div className="ma10 mt0 w4 h4">
       <Tilt
