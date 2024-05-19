@@ -88,44 +88,28 @@ function Clarifai() {
       console.log("Result: ");
       console.log(result);
 
-      regions.forEach((region) => {
-        // Accessing and rounding the bounding box values
-        const boundingBox = region.region_info.bounding_box;
-        const topRow = boundingBox.top_row.toFixed(3);
-        const leftCol = boundingBox.left_col.toFixed(3);
-        const bottomRow = boundingBox.bottom_row.toFixed(3);
-        const rightCol = boundingBox.right_col.toFixed(3);
+      // regions.forEach((region) => {
+      //   // Accessing and rounding the bounding box values
+      //   const boundingBox = region.region_info.bounding_box;
+      //   const topRow = boundingBox.top_row.toFixed(3);
+      //   const leftCol = boundingBox.left_col.toFixed(3);
+      //   const bottomRow = boundingBox.bottom_row.toFixed(3);
+      //   const rightCol = boundingBox.right_col.toFixed(3);
 
-        region.data.concepts.forEach((concept) => {
-          // Accessing and rounding the concept value
-          const name = concept.name;
-          const value = concept.value.toFixed(4);
+      //   region.data.concepts.forEach((concept) => {
+      //     // Accessing and rounding the concept value
+      //     const name = concept.name;
+      //     const value = concept.value.toFixed(4);
 
-          // console.log(
-          //   `${name}: ${value} BBox: ${topRow}, ${leftCol}, ${bottomRow}, ${rightCol}`
-          // );
-        });
-      });
+      //     // console.log(
+      //     //   `${name}: ${value} BBox: ${topRow}, ${leftCol}, ${bottomRow}, ${rightCol}`
+      //     // );
+      //   });
+      // });
       return result;
     })
     .catch((error) => console.log("error", error));
 }
-
-const calculateFaceLocation = (data) => {
-  // response.outputs[0].data.regions[0].region.region_info.bounding_box
-
-  console.log("within calculateFaceLocation --->");
-  console.log(data);
-
-  const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
-  console.log("data ->");
-  console.log(clarifaiFace);
-
-  const image = document.getElementById("inputimage");
-  const width = Number(image.width);
-  const height = Number(image.height);
-  console.log(width, height);
-};
 
 class App extends Component {
   constructor() {
@@ -148,12 +132,43 @@ class App extends Component {
       .then((result) => {
         console.log("within Button:");
         console.log(result);
-        // this.calculateFaceLocation(result);
-        calculateFaceLocation(result); //continue here
+        this.displayFaceBox(this.calculateFaceLocation(result));
       })
       .catch((error) => {
         console.log("API Error:", error);
       });
+  };
+
+  calculateFaceLocation = (data) => {
+    console.log("within calculateFaceLocation --->");
+    console.log(data);
+
+    const clarifaiFace =
+      data.outputs[0].data.regions[0].region_info.bounding_box;
+
+    console.log("data ->");
+    console.log(clarifaiFace);
+
+    const image = document.getElementById("inputimage");
+    const width = Number(image.width);
+    const height = Number(image.height);
+
+    const box = {
+      left_col: clarifaiFace.left_col * width,
+      top_row: clarifaiFace.top_row * height,
+      right_col: width - clarifaiFace.right_col * width,
+      bottom_row: height - clarifaiFace.bottom_row * height,
+    };
+    console.log("Object");
+    console.log(box);
+
+    return box;
+  };
+
+  displayFaceBox = (box) => {
+    console.log("within display --->");
+    console.log(box);
+    this.setState({ box });
   };
 
   render() {
@@ -167,7 +182,7 @@ class App extends Component {
           onInputChange={this.onInputChange}
           onButtonSubmit={this.onButtonSubmit}
         />
-        <FaceRecognition imageUrl={this.state.imageUrl} />
+        <FaceRecognition box={this.state.box} imageUrl={this.state.imageUrl} />
       </div>
     );
   }
