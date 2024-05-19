@@ -26,41 +26,47 @@ let config = {
   fullScreen: true,
 };
 
-const PAT = "97d3271e4e744016ad2b8788e1dd380b";
+const PAT = "8f25c63151e74ac0bf4cbe13eb803f15";
 const USER_ID = "clarifai";
 const APP_ID = "main";
 const MODEL_ID = "face-detection";
 const MODEL_VERSION_ID = "6dc7e46bc9124c5c8824be4822abe105";
 let IMAGE_URL = "";
 
-const raw = JSON.stringify({
-  user_app_id: {
-    user_id: USER_ID,
-    app_id: APP_ID,
-  },
-  inputs: [
-    {
-      data: {
-        image: {
-          url: IMAGE_URL,
-          // "base64": IMAGE_BYTES_STRING
+function Clarifai() {
+  let raw = JSON.stringify({
+    user_app_id: {
+      user_id: USER_ID,
+      app_id: APP_ID,
+    },
+    inputs: [
+      {
+        data: {
+          image: {
+            url: IMAGE_URL,
+          },
         },
       },
+    ],
+  });
+
+  ////
+  console.log("Within Clarifai:");
+  console.log(raw);
+  /////
+
+  const requestOptions = {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      Authorization: "Key " + PAT,
     },
-  ],
-});
+    body: raw,
+  };
 
-const requestOptions = {
-  method: "POST",
-  headers: {
-    Accept: "application/json",
-    Authorization: "Key " + PAT,
-  },
-  body: raw,
-};
+  let response;
 
-function Clarifai() {
-  fetch(
+  return fetch(
     "https://api.clarifai.com/v2/models/" +
       MODEL_ID +
       "/versions/" +
@@ -68,30 +74,39 @@ function Clarifai() {
       "/outputs",
     requestOptions
   )
-    .then((response) => response.json())
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response error!");
+      }
+      return response.json();
+    })
     .then((result) => {
       const regions = result.outputs[0].data.regions;
 
-      console.log(result.outputs[0].data);
+      // calculateFaceLocation(result);
 
-      regions.forEach((region) => {
-        // Accessing and rounding the bounding box values
-        const boundingBox = region.region_info.bounding_box;
-        const topRow = boundingBox.top_row.toFixed(3);
-        const leftCol = boundingBox.left_col.toFixed(3);
-        const bottomRow = boundingBox.bottom_row.toFixed(3);
-        const rightCol = boundingBox.right_col.toFixed(3);
+      console.log("Result: ");
+      console.log(result);
 
-        region.data.concepts.forEach((concept) => {
-          // Accessing and rounding the concept value
-          const name = concept.name;
-          const value = concept.value.toFixed(4);
+      // regions.forEach((region) => {
+      //   // Accessing and rounding the bounding box values
+      //   const boundingBox = region.region_info.bounding_box;
+      //   const topRow = boundingBox.top_row.toFixed(3);
+      //   const leftCol = boundingBox.left_col.toFixed(3);
+      //   const bottomRow = boundingBox.bottom_row.toFixed(3);
+      //   const rightCol = boundingBox.right_col.toFixed(3);
 
-          // console.log(
-          //   `${name}: ${value} BBox: ${topRow}, ${leftCol}, ${bottomRow}, ${rightCol}`
-          // );
-        });
-      });
+      //   region.data.concepts.forEach((concept) => {
+      //     // Accessing and rounding the concept value
+      //     const name = concept.name;
+      //     const value = concept.value.toFixed(4);
+
+      //     // console.log(
+      //     //   `${name}: ${value} BBox: ${topRow}, ${leftCol}, ${bottomRow}, ${rightCol}`
+      //     // );
+      //   });
+      // });
+      return result;
     })
     .catch((error) => console.log("error", error));
 }
@@ -102,6 +117,7 @@ class App extends Component {
     this.state = {
       input: "",
       imageUrl: "",
+      box: {},
     };
   }
 
@@ -112,7 +128,47 @@ class App extends Component {
   onButtonSubmit = () => {
     this.setState({ imageUrl: this.state.input });
     IMAGE_URL = this.state.input;
-    Clarifai();
+    Clarifai()
+      .then((result) => {
+        console.log("within Button:");
+        console.log(result);
+        this.displayFaceBox(this.calculateFaceLocation(result));
+      })
+      .catch((error) => {
+        console.log("API Error:", error);
+      });
+  };
+
+  calculateFaceLocation = (data) => {
+    console.log("within calculateFaceLocation --->");
+    console.log(data);
+
+    const clarifaiFace =
+      data.outputs[0].data.regions[0].region_info.bounding_box;
+
+    console.log("data ->");
+    console.log(clarifaiFace);
+
+    const image = document.getElementById("inputimage");
+    const width = Number(image.width);
+    const height = Number(image.height);
+
+    const box = {
+      left_col: clarifaiFace.left_col * width,
+      top_row: clarifaiFace.top_row * height,
+      right_col: width - clarifaiFace.right_col * width,
+      bottom_row: height - clarifaiFace.bottom_row * height,
+    };
+    console.log("Object");
+    console.log(box);
+
+    return box;
+  };
+
+  displayFaceBox = (box) => {
+    console.log("within display --->");
+    console.log(box);
+    this.setState({ box });
   };
 
   render() {
@@ -126,7 +182,7 @@ class App extends Component {
           onInputChange={this.onInputChange}
           onButtonSubmit={this.onButtonSubmit}
         />
-        <FaceRecognition imageUrl={this.state.imageUrl} />
+        <FaceRecognition box={this.state.box} imageUrl={this.state.imageUrl} />
       </div>
     );
   }
