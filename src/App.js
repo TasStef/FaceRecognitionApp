@@ -7,7 +7,8 @@ import Rank from "./Components/Rank/Rank";
 import FaceRecognition from "./Components/FaceRecognition/FaceRecognition";
 import "tachyons";
 import ParticlesBg from "particles-bg";
-// import Clarifai from "clarifai";
+import SignIn from "./Components/SignIn/SignIn";
+import Register from "./Components/Register/Register";
 
 let config = {
   num: [4, 7],
@@ -50,11 +51,6 @@ function Clarifai() {
     ],
   });
 
-  ////
-  console.log("Within Clarifai:");
-  console.log(raw);
-  /////
-
   const requestOptions = {
     method: "POST",
     headers: {
@@ -63,8 +59,6 @@ function Clarifai() {
     },
     body: raw,
   };
-
-  let response;
 
   return fetch(
     "https://api.clarifai.com/v2/models/" +
@@ -81,31 +75,6 @@ function Clarifai() {
       return response.json();
     })
     .then((result) => {
-      const regions = result.outputs[0].data.regions;
-
-      // calculateFaceLocation(result);
-
-      console.log("Result: ");
-      console.log(result);
-
-      // regions.forEach((region) => {
-      //   // Accessing and rounding the bounding box values
-      //   const boundingBox = region.region_info.bounding_box;
-      //   const topRow = boundingBox.top_row.toFixed(3);
-      //   const leftCol = boundingBox.left_col.toFixed(3);
-      //   const bottomRow = boundingBox.bottom_row.toFixed(3);
-      //   const rightCol = boundingBox.right_col.toFixed(3);
-
-      //   region.data.concepts.forEach((concept) => {
-      //     // Accessing and rounding the concept value
-      //     const name = concept.name;
-      //     const value = concept.value.toFixed(4);
-
-      //     // console.log(
-      //     //   `${name}: ${value} BBox: ${topRow}, ${leftCol}, ${bottomRow}, ${rightCol}`
-      //     // );
-      //   });
-      // });
       return result;
     })
     .catch((error) => console.log("error", error));
@@ -118,6 +87,8 @@ class App extends Component {
       input: "",
       imageUrl: "",
       box: {},
+      route: "signin",
+      isSignedIn: false,
     };
   }
 
@@ -130,8 +101,6 @@ class App extends Component {
     IMAGE_URL = this.state.input;
     Clarifai()
       .then((result) => {
-        console.log("within Button:");
-        console.log(result);
         this.displayFaceBox(this.calculateFaceLocation(result));
       })
       .catch((error) => {
@@ -140,14 +109,8 @@ class App extends Component {
   };
 
   calculateFaceLocation = (data) => {
-    console.log("within calculateFaceLocation --->");
-    console.log(data);
-
     const clarifaiFace =
       data.outputs[0].data.regions[0].region_info.bounding_box;
-
-    console.log("data ->");
-    console.log(clarifaiFace);
 
     const image = document.getElementById("inputimage");
     const width = Number(image.width);
@@ -159,30 +122,51 @@ class App extends Component {
       right_col: width - clarifaiFace.right_col * width,
       bottom_row: height - clarifaiFace.bottom_row * height,
     };
-    console.log("Object");
-    console.log(box);
 
     return box;
   };
 
   displayFaceBox = (box) => {
-    console.log("within display --->");
-    console.log(box);
-    this.setState({ box });
+    this.setState({ box: box });
+  };
+
+  onRouteChange = (route) => {
+    this.setState({ route: route });
+    if (route === "signout") {
+      this.setState({ isSignedIn: false });
+    } else if (route === "home") {
+      this.setState({ isSignedIn: true });
+    } else {
+      this.setState({ isSignedIn: true });
+    }
   };
 
   render() {
     return (
       <div>
         <ParticlesBg type="custom" config={config} bg={true} />
-        <Navigation />
-        <Logo />
-        <Rank />
-        <ImageLinkForm
-          onInputChange={this.onInputChange}
-          onButtonSubmit={this.onButtonSubmit}
+        <Navigation
+          onRouteChange={this.onRouteChange}
+          isSignedIn={this.state.isSignedIn}
         />
-        <FaceRecognition box={this.state.box} imageUrl={this.state.imageUrl} />
+        {this.state.route === "home" ? (
+          <div>
+            <Logo />
+            <Rank />
+            <ImageLinkForm
+              onInputChange={this.onInputChange}
+              onButtonSubmit={this.onButtonSubmit}
+            />
+            <FaceRecognition
+              box={this.state.box}
+              imageUrl={this.state.imageUrl}
+            />
+          </div>
+        ) : this.state.route === "signin" ? (
+          <SignIn onRouteChange={this.onRouteChange} />
+        ) : (
+          <Register onRouteChange={this.onRouteChange} />
+        )}
       </div>
     );
   }
