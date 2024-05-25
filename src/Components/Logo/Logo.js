@@ -1,14 +1,21 @@
 import React from "react";
 import Tilt from "react-parallax-tilt";
-import styles from "./Logo.module.css";
+import "./Logo.css";
 import "tachyons";
 import brain from "./brain.png";
 
 const Logo = () => {
   return (
-    <div className="ma10 mt0 w4 h4">
+    <div
+      className="ma10 mt0 w4 h4"
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
       <Tilt
-        className={`br4 shadow-4 w4 h4 ${styles.internal_box}`}
+        className={`br4 shadow-4 w4 h4 internal_box`}
         tiltReverse={true}
         tiltMaxAngleX={20}
         scale="1.1"

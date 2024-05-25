@@ -27,58 +27,12 @@ let config = {
   fullScreen: true,
 };
 
-const PAT = "8f25c63151e74ac0bf4cbe13eb803f15";
-const USER_ID = "clarifai";
-const APP_ID = "main";
-const MODEL_ID = "face-detection";
-const MODEL_VERSION_ID = "6dc7e46bc9124c5c8824be4822abe105";
-let IMAGE_URL = "";
-
-function Clarifai() {
-  let raw = JSON.stringify({
-    user_app_id: {
-      user_id: USER_ID,
-      app_id: APP_ID,
-    },
-    inputs: [
-      {
-        data: {
-          image: {
-            url: IMAGE_URL,
-          },
-        },
-      },
-    ],
-  });
-
-  const requestOptions = {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      Authorization: "Key " + PAT,
-    },
-    body: raw,
-  };
-
-  return fetch(
-    "https://api.clarifai.com/v2/models/" +
-      MODEL_ID +
-      "/versions/" +
-      MODEL_VERSION_ID +
-      "/outputs",
-    requestOptions
-  )
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network response error!");
-      }
-      return response.json();
-    })
-    .then((result) => {
-      return result;
-    })
-    .catch((error) => console.log("error", error));
-}
+// const PAT = "8f25c63151e74ac0bf4cbe13eb803f15";
+// const USER_ID = "clarifai";
+// const APP_ID = "main";
+// const MODEL_ID = "face-detection";
+// const MODEL_VERSION_ID = "6dc7e46bc9124c5c8824be4822abe105";
+// let IMAGE_URL = "";
 
 class App extends Component {
   constructor() {
@@ -89,7 +43,62 @@ class App extends Component {
       box: {},
       route: "signin",
       isSignedIn: false,
+      PAT: "8f25c63151e74ac0bf4cbe13eb803f15",
+      USER_ID: "clarifai",
+      APP_ID: "main",
+      MODEL_ID: "face-detection",
+      MODEL_VERSION_ID: "6dc7e46bc9124c5c8824be4822abe105",
+      IMAGE_URL: "",
     };
+  }
+
+  clarifai() {
+    const { PAT, USER_ID, APP_ID, MODEL_ID, MODEL_VERSION_ID, IMAGE_URL } =
+      this.state;
+
+    let raw = JSON.stringify({
+      user_app_id: {
+        user_id: USER_ID,
+        app_id: APP_ID,
+      },
+      inputs: [
+        {
+          data: {
+            image: {
+              url: IMAGE_URL,
+            },
+          },
+        },
+      ],
+    });
+
+    const requestOptions = {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        Authorization: "Key " + PAT,
+      },
+      body: raw,
+    };
+
+    return fetch(
+      "https://api.clarifai.com/v2/models/" +
+        MODEL_ID +
+        "/versions/" +
+        MODEL_VERSION_ID +
+        "/outputs",
+      requestOptions
+    )
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response error!");
+        }
+        return response.json();
+      })
+      .then((result) => {
+        return result;
+      })
+      .catch((error) => console.log("error", error));
   }
 
   onInputChange = (event) => {
@@ -97,15 +106,18 @@ class App extends Component {
   };
 
   onButtonSubmit = () => {
-    this.setState({ imageUrl: this.state.input });
-    IMAGE_URL = this.state.input;
-    Clarifai()
-      .then((result) => {
-        this.displayFaceBox(this.calculateFaceLocation(result));
-      })
-      .catch((error) => {
-        console.log("API Error:", error);
-      });
+    this.setState(
+      { imageUrl: this.state.input, IMAGE_URL: this.state.input },
+      () => {
+        this.clarifai()
+          .then((result) => {
+            this.displayFaceBox(this.calculateFaceLocation(result));
+          })
+          .catch((error) => {
+            console.log("API Error:", error);
+          });
+      }
+    );
   };
 
   calculateFaceLocation = (data) => {
@@ -137,7 +149,7 @@ class App extends Component {
     } else if (route === "home") {
       this.setState({ isSignedIn: true });
     } else {
-      this.setState({ isSignedIn: true });
+      this.setState({ isSignedIn: false });
     }
   };
 
