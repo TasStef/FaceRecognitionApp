@@ -1,14 +1,14 @@
 import React, { Component } from "react";
 import "./App.css";
-import Navigation from "./Components/Navigation/Navigation";
-import Logo from "./Components/Logo/Logo";
-import ImageLinkForm from "./Components/ImageLinkForm/ImageLinkForm";
-import Rank from "./Components/Rank/Rank";
-import FaceRecognition from "./Components/FaceRecognition/FaceRecognition";
+import Navigation from "./Components/Navigation/Navigation.js";
+import Logo from "./Components/Logo/Logo.js";
+import ImageLinkForm from "./Components/ImageLinkForm/ImageLinkForm.js";
+import Rank from "./Components/Rank/Rank.js";
+import FaceRecognition from "./Components/FaceRecognition/FaceRecognition.js";
 import "tachyons";
 import ParticlesBg from "particles-bg";
-import SignIn from "./Components/SignIn/SignIn";
-import Register from "./Components/Register/Register";
+import SignIn from "./Components/SignIn/SignIn.js";
+import Register from "./Components/Register/Register.js";
 
 let config = {
   num: [4, 7],
@@ -27,13 +27,6 @@ let config = {
   fullScreen: true,
 };
 
-// const PAT = "8f25c63151e74ac0bf4cbe13eb803f15";
-// const USER_ID = "clarifai";
-// const APP_ID = "main";
-// const MODEL_ID = "face-detection";
-// const MODEL_VERSION_ID = "6dc7e46bc9124c5c8824be4822abe105";
-// let IMAGE_URL = "";
-
 class App extends Component {
   constructor() {
     super();
@@ -49,10 +42,17 @@ class App extends Component {
       MODEL_ID: "face-detection",
       MODEL_VERSION_ID: "6dc7e46bc9124c5c8824be4822abe105",
       IMAGE_URL: "",
+      user: {
+        id: "",
+        name: "",
+        email: "",
+        entries: 0,
+        joined: "",
+      },
     };
   }
 
-  clarifai() {
+  clarifai = async () => {
     const { PAT, USER_ID, APP_ID, MODEL_ID, MODEL_VERSION_ID, IMAGE_URL } =
       this.state;
 
@@ -98,26 +98,27 @@ class App extends Component {
       .then((result) => {
         return result;
       })
-      .catch((error) => console.log("error", error));
-  }
+      .catch((error) => {
+        return error;
+      });
+  };
 
   onInputChange = (event) => {
     this.setState({ input: event.target.value });
   };
 
-  onButtonSubmit = () => {
-    this.setState(
-      { imageUrl: this.state.input, IMAGE_URL: this.state.input },
-      () => {
-        this.clarifai()
-          .then((result) => {
-            this.displayFaceBox(this.calculateFaceLocation(result));
-          })
-          .catch((error) => {
-            console.log("API Error:", error);
-          });
-      }
-    );
+  onButtonSubmit = async () => {
+    await this.setState({
+      imageUrl: this.state.input,
+      IMAGE_URL: this.state.input,
+    });
+
+    try {
+      let result = await this.clarifai();
+      this.displayFaceBox(this.calculateFaceLocation(result));
+    } catch (error) {
+      console.log("API Error: ", error);
+    }
   };
 
   calculateFaceLocation = (data) => {
@@ -153,6 +154,19 @@ class App extends Component {
     }
   };
 
+  loadUser = (userData) => {
+    const { id, name, email, entries, joined } = userData;
+    this.setState({
+      user: {
+        id: id,
+        name: name,
+        email: email,
+        entries: entries,
+        joined: joined,
+      },
+    });
+  };
+
   render() {
     return (
       <div>
@@ -164,7 +178,7 @@ class App extends Component {
         {this.state.route === "home" ? (
           <div>
             <Logo />
-            <Rank />
+            <Rank loadUser={this.loadUser} />
             <ImageLinkForm
               onInputChange={this.onInputChange}
               onButtonSubmit={this.onButtonSubmit}
@@ -175,9 +189,12 @@ class App extends Component {
             />
           </div>
         ) : this.state.route === "signin" ? (
-          <SignIn onRouteChange={this.onRouteChange} />
+          <SignIn onRouteChange={this.onRouteChange} loadUser={this.loadUser} />
         ) : (
-          <Register onRouteChange={this.onRouteChange} />
+          <Register
+            onRouteChange={this.onRouteChange}
+            loadUser={this.loadUser}
+          />
         )}
       </div>
     );
