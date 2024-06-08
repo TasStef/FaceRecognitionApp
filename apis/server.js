@@ -61,9 +61,7 @@ app.post("/signin", (req, res) => {
     email === database.users[0].email &&
     req.body.password === database.users[0].password
   ) {
-    // const user = (database.users.find((user) => user.email === email));
-    // res.json("Success");
-    res.json("Success");
+    res.json(database.users[0]);
   } else {
     res.status(400).json("Wrong email or password");
   }
@@ -78,7 +76,7 @@ app.post("/register", (req, res) => {
     passwordHashed = hash;
   });
   database.users.push({
-    id: 125,
+    id: 126,
     name: name,
     email: email,
     password: passwordHashed,

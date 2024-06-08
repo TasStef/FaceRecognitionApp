@@ -115,10 +115,37 @@ class App extends Component {
 
     try {
       let result = await this.clarifai();
-      this.displayFaceBox(this.calculateFaceLocation(result));
+      if (result) {
+        this.displayFaceBox(this.calculateFaceLocation(result));
+        let count = await this.fetchIamgeRequest();
+        console.log("Count:", count);
+        this.setState(Object.assign(this.state.user, { entries: count }));
+      }
     } catch (error) {
       console.log("API Error: ", error);
     }
+  };
+
+  fetchIamgeRequest = () => {
+    const myHeaders = new Headers();
+    const url = "http://127.0.0.1:3000/image";
+    myHeaders.append("Content-Type", "application/json");
+
+    const raw = JSON.stringify({
+      id: this.state.user.id,
+    });
+
+    const requestOptions = {
+      method: "PUT",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow",
+    };
+
+    return fetch(url, requestOptions)
+      .then((response) => response.text())
+      .then((result) => result)
+      .catch((error) => console.error(error));
   };
 
   calculateFaceLocation = (data) => {
@@ -178,7 +205,10 @@ class App extends Component {
         {this.state.route === "home" ? (
           <div>
             <Logo />
-            <Rank loadUser={this.loadUser} />
+            <Rank
+              name={this.state.user.name}
+              entries={this.state.user.entries}
+            />
             <ImageLinkForm
               onInputChange={this.onInputChange}
               onButtonSubmit={this.onButtonSubmit}

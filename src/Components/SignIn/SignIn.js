@@ -36,9 +36,8 @@ class SignIn extends React.Component {
     fetch(url, requestOptions)
       .then((response) => response.json())
       .then((data) => {
-        if (data === "success" && ) {
-          console.log(data);
-          this.props.loadUSer(user);
+        if (data.id) {
+          this.props.loadUser(data);
           this.props.onRouteChange("home");
         }
       });
