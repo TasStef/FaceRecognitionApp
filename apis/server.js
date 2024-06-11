@@ -87,15 +87,18 @@ app.post("/register", (req, res) => {
   bcrypt.hash(password, null, null, function (err, hash) {
     passwordHashed = hash;
   });
-  database.users.push({
-    id: 126,
-    name: name,
-    email: email,
-    password: passwordHashed,
-    entries: 0,
-    joined: new Date(),
-  });
-  res.status(201).json(database.users.at(-1));
+
+  db("users")
+    .returning("*")
+    .insert({
+      name: name,
+      email: email,
+      joined: new Date(),
+    })
+    .then((user) => {
+      res.json(user);
+    })
+    .catch((err) => res.status(400).json(`Error in register: ${err}`)); //in prod this should be more cryptic "unable to register"
 });
 
 // Get Users
@@ -106,34 +109,30 @@ app.get("/users", (req, res) => {
 // Profile
 app.get("/profile/:id", (req, res) => {
   const { id } = req.params;
-  let found = false;
 
-  database.users.forEach((user) => {
-    if (user.id === id) {
-      found = true;
-      return res.json(user);
-    }
-  });
-
-  if (!found) {
-    res.status(400).json("No such user");
-  }
+  db.select("*")
+    .from("users")
+    .where({
+      id,
+    })
+    .then((user) => {
+      if (user.length) {
+        res.json(user);
+      } else {
+        res.status(404).json(`No user with id: ${id}`);
+      }
+    })
+    .catch((err) => res.status(400).json(`Error im /rpofile ${err}`));
 });
 
 //Image
 app.put("/image", (req, res) => {
   const { id } = req.body;
-  let found = false;
 
-  database.users.forEach((user) => {
-    if (user.id === id) {
-      found = true;
-      user.entries++;
-      return res.json(user.entries);
-    }
-  });
-
-  if (!found) {
-    res.status(400).json("No such user");
-  }
+  db("users")
+    .where("id", id)
+    .increment("entries", 1)
+    .returning("entries")
+    .then((entries) => res.json(entries[0].entries))
+    .catch((err) => res.status(400).json(`Error at image: ${err}`));
 });
