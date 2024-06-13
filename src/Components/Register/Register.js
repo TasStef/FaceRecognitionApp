@@ -2,13 +2,15 @@ import React from "react";
 import "tachyons";
 
 class Register extends React.Component {
-  constructor(props) {
-    super(props);
+  constructor({ loadUser, onRouteChange }) {
+    super();
     this.state = {
       email: "",
       password: "",
       name: "",
     };
+    this.loadUser = loadUser;
+    this.onRouteChange = onRouteChange;
   }
 
   onEmailChange = (event) => {
@@ -44,10 +46,9 @@ class Register extends React.Component {
         return response.json();
       })
       .then((user) => {
-        console.log("USer: ", user);
-        if (user) {
-          this.props.loadUser(user);
-          this.props.onRouteChange("home");
+        if (user[0].id) {
+          this.loadUser(user[0]);
+          this.onRouteChange("home");
         }
       })
       .catch((err) => console.log("Error on onSubmitRegister: ", err));

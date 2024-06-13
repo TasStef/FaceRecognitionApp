@@ -13,8 +13,10 @@
     "clarifai": "^2.9.1",
     "cors": "^2.8.5",
     "express": "^4.19.2",
+    "knex": "^3.1.0",
     "nodemon": "^3.1.2",
     "particles-bg": "^2.5.5",
+    "pg": "^8.12.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-parallax-tilt": "^1.7.226",
@@ -23,11 +25,11 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
+    "serv": "nodemon server.js",
     "start": "set PORT=3001 && react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "server": "nodemon /apis/server.js"
+    "eject": "react-scripts eject"
   },
   "eslintConfig": {
     "extends": [
@@ -48,6 +50,6 @@
     ]
   },
   "devDependencies": {
-    "@babel/plugin-transform-private-property-in-object": "^7.24.6"
+    "@babel/plugin-proposal-private-property-in-object": "^7.24.6"
   }
 }
