@@ -27,6 +27,22 @@ let config = {
   fullScreen: true,
 };
 
+// const initialState = {
+//   input: "",
+//   imageUrl: "",
+//   box: {},
+//   route: "signin",
+//   isSignedIn: false,
+//   IMAGE_URL: "",
+//   user: {
+//     id: "",
+//     name: "",
+//     email: "",
+//     entries: 0,
+//     joined: "",
+//   },
+// };
+
 class App extends Component {
   constructor() {
     super();
@@ -108,6 +124,8 @@ class App extends Component {
   };
 
   onButtonSubmit = async () => {
+    await this.setState({ box: {} });
+
     await this.setState({
       imageUrl: this.state.input,
       IMAGE_URL: this.state.input,
@@ -118,7 +136,6 @@ class App extends Component {
       if (result) {
         this.displayFaceBox(this.calculateFaceLocation(result));
         let count = await this.fetchIamgeRequest();
-        console.log("Count:", count);
         this.setState(Object.assign(this.state.user, { entries: count }));
       }
     } catch (error) {
@@ -173,11 +190,16 @@ class App extends Component {
   onRouteChange = (route) => {
     this.setState({ route: route });
     if (route === "signout") {
-      this.setState({ isSignedIn: false });
+      this.setState({ isSignedIn: false, IMAGE_URL: "", user: {} });
     } else if (route === "home") {
       this.setState({ isSignedIn: true });
     } else {
-      this.setState({ isSignedIn: false });
+      this.setState({
+        isSignedIn: false,
+        IMAGE_URL: "",
+        user: {},
+        imageUrl: "",
+      });
     }
   };
 
