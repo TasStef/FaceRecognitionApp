@@ -1,4 +1,4 @@
-const handleRegister = (req, res) => {
+const handleRegister = (req, res, db, bcrypt) => {
   const { email, name, password } = req.body;
 
   let hash = bcrypt.hashSync(password);
@@ -31,5 +31,5 @@ const handleRegister = (req, res) => {
 };
 
 module.exports = {
-  handleRegister: this.handleRegister,
+  handleRegister: handleRegister,
 };
