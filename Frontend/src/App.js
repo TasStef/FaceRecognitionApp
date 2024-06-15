@@ -27,22 +27,6 @@ let config = {
   fullScreen: true,
 };
 
-// const initialState = {
-//   input: "",
-//   imageUrl: "",
-//   box: {},
-//   route: "signin",
-//   isSignedIn: false,
-//   IMAGE_URL: "",
-//   user: {
-//     id: "",
-//     name: "",
-//     email: "",
-//     entries: 0,
-//     joined: "",
-//   },
-// };
-
 class App extends Component {
   constructor() {
     super();
