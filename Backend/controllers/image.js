@@ -59,10 +59,10 @@ const image = {
         return response.json();
       })
       .then((result) => {
-        res.json(result);
+        return res.json(result);
       })
       .catch((err) => {
-        res.json(err);
+        return res.json(err);
       });
   },
 };

@@ -36,11 +36,6 @@ class App extends Component {
       box: {},
       route: "signin",
       isSignedIn: false,
-      PAT: "8f25c63151e74ac0bf4cbe13eb803f15",
-      USER_ID: "clarifai",
-      APP_ID: "main",
-      MODEL_ID: "face-detection",
-      MODEL_VERSION_ID: "6dc7e46bc9124c5c8824be4822abe105",
       IMAGE_URL: "",
       user: {
         id: "",
@@ -52,55 +47,32 @@ class App extends Component {
     };
   }
 
-  clarifai = async () => {
-    const { PAT, USER_ID, APP_ID, MODEL_ID, MODEL_VERSION_ID, IMAGE_URL } =
-      this.state;
+  clarifai = () => {
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
 
-    let raw = JSON.stringify({
-      user_app_id: {
-        user_id: USER_ID,
-        app_id: APP_ID,
-      },
-      inputs: [
-        {
-          data: {
-            image: {
-              url: IMAGE_URL,
-            },
-          },
-        },
-      ],
+    const raw = JSON.stringify({
+      imageURL: this.state.IMAGE_URL,
     });
 
     const requestOptions = {
       method: "POST",
-      headers: {
-        Accept: "application/json",
-        Authorization: "Key " + PAT,
-      },
+      headers: myHeaders,
       body: raw,
+      redirect: "follow",
     };
 
-    return fetch(
-      "https://api.clarifai.com/v2/models/" +
-        MODEL_ID +
-        "/versions/" +
-        MODEL_VERSION_ID +
-        "/outputs",
-      requestOptions
-    )
+    return fetch("http://127.0.0.1:3000/clarifai", requestOptions)
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Network response error!");
+          throw new Error("Network response was not ok");
         }
         return response.json();
       })
-      .then((result) => {
-        return result;
+      .then((data) => {
+        return data;
       })
-      .catch((error) => {
-        return error;
-      });
+      .catch((error) => console.error(error));
   };
 
   onInputChange = (event) => {
@@ -110,21 +82,28 @@ class App extends Component {
   onButtonSubmit = async () => {
     await this.setState({ box: {} });
 
-    await this.setState({
-      imageUrl: this.state.input,
-      IMAGE_URL: this.state.input,
-    });
-
-    try {
-      let result = await this.clarifai();
-      if (result) {
-        this.displayFaceBox(this.calculateFaceLocation(result));
-        let count = await this.fetchIamgeRequest();
-        this.setState(Object.assign(this.state.user, { entries: count }));
+    await this.setState(
+      {
+        imageUrl: this.state.input,
+        IMAGE_URL: this.state.input,
+      },
+      () => {
+        this.clarifai()
+          .then((res) => {
+            if (res) {
+              this.displayFaceBox(this.calculateFaceLocation(res));
+              this.fetchIamgeRequest().then((count) =>
+                this.setState(
+                  Object.assign(this.state.user, { entries: count })
+                )
+              );
+            }
+          })
+          .catch((err) => {
+            console.log("API Error: ", err);
+          });
       }
-    } catch (error) {
-      console.log("API Error: ", error);
-    }
+    );
   };
 
   fetchIamgeRequest = () => {
