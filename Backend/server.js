@@ -57,3 +57,8 @@ app.get("/profile/:id", (req, res) => {
 app.put("/image", (req, res) => {
   image.image(req, res, db);
 });
+
+//! Clarifai Call
+app.post("/clarifai", (req, res) => {
+  image.clarifai(req, res);
+});

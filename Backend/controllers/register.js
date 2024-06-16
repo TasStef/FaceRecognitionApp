@@ -2,6 +2,10 @@ const register = {
   handleRegister: (req, res, db, bcrypt) => {
     const { email, name, password } = req.body;
 
+    if (!email || !name || !password) {
+      return res.status(400).json("Incorect form submition");
+    }
+
     let hash = bcrypt.hashSync(password);
 
     // transaction allows for rollback in the Database if somethign goes wrong
