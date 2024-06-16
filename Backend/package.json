@@ -11,6 +11,7 @@
     "bcrypt-nodejs": "^0.0.3",
     "body-parser": "^1.20.2",
     "clarifai": "^2.9.1",
+    "clarifai-nodejs": "^0.0.2",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "knex": "^3.1.0",
@@ -25,8 +26,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "serv": "nodemon server.js",
-    "start": "set PORT=3001 && react-scripts start",
+    "start": "nodemon server.js",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -48,8 +48,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.24.6"
   }
 }
