@@ -79,10 +79,10 @@ class App extends Component {
     this.setState({ input: event.target.value });
   };
 
-  onButtonSubmit = async () => {
-    await this.setState({ box: {} });
+  onButtonSubmit = () => {
+    this.setState({ box: {} });
 
-    await this.setState(
+    this.setState(
       {
         imageUrl: this.state.input,
         IMAGE_URL: this.state.input,
