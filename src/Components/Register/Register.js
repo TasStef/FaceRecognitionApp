@@ -26,7 +26,7 @@ class Register extends React.Component {
   };
 
   onSubmitRegister = () => {
-    const url = "http://127.0.0.1:3000/register";
+    const url = "https://facerecognitionserver.onrender.com/register";
     const headers = { "Content-Type": "application/json" };
 
     const body = JSON.stringify({
