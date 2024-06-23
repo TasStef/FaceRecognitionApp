@@ -62,7 +62,10 @@ class App extends Component {
       redirect: "follow",
     };
 
-    return fetch("http://127.0.0.1:3000/clarifai", requestOptions)
+    return fetch(
+      "https://facerecognitionserver.onrender.com/clarifai",
+      requestOptions
+    )
       .then((response) => {
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -108,7 +111,7 @@ class App extends Component {
 
   fetchIamgeRequest = () => {
     const myHeaders = new Headers();
-    const url = "http://127.0.0.1:3000/image";
+    const url = "https://facerecognitionserver.onrender.com/image";
     myHeaders.append("Content-Type", "application/json");
 
     const raw = JSON.stringify({
