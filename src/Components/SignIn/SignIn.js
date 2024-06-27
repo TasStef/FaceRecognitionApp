@@ -87,7 +87,8 @@ class SignIn extends React.Component {
             <div className="lh-copy mt3">
               <legend
                 className="f6 fw6 ph0 mh0 pointer"
-                onClick={this.onSubmitSignIn}
+                // onClick={this.onSubmitSignIn}
+                onClick={() => this.props.onRouteChange("register")}
               >
                 Register
               </legend>
